@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "SnapshotReference": {
+      "additionalProperties": false,
+      "properties": {
+        "tenant_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Tenant Id",
+          "type": "string"
+        },
+        "seq": {
+          "description": "Canonical decimal int64, at most 9223372036854775807",
+          "pattern": "^(0|[1-9][0-9]{0,18})$",
+          "title": "Seq",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "seq"
+      ],
+      "title": "SnapshotReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "kind": {
+      "const": "alerts.changed",
+      "title": "Kind",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "alert_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Alert Id",
+      "type": "string"
+    },
+    "projection_seq": {
+      "description": "Canonical decimal int64, at most 9223372036854775807",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "title": "Projection Seq",
+      "type": "string"
+    },
+    "projection_version": {
+      "description": "Canonical decimal int64, at most 9223372036854775807",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "title": "Projection Version",
+      "type": "string"
+    },
+    "change_order": {
+      "description": "Canonical decimal int64, at most 9223372036854775807",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "title": "Change Order",
+      "type": "string"
+    },
+    "original_admission_order": {
+      "anyOf": [
+        {
+          "description": "Canonical decimal int64, at most 9223372036854775807",
+          "pattern": "^(0|[1-9][0-9]{0,18})$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Original Admission Order"
+    },
+    "native_version": {
+      "anyOf": [
+        {
+          "enum": [
+            "v1",
+            "v2"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Native Version"
+    },
+    "actor_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Actor Id"
+    },
+    "cause": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_-]*$",
+      "title": "Cause",
+      "type": "string"
+    },
+    "effective_at": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "title": "Effective At",
+      "type": "string"
+    },
+    "recorded_at": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "title": "Recorded At",
+      "type": "string"
+    },
+    "snapshot_ref": {
+      "$ref": "#/$defs/SnapshotReference"
+    },
+    "snapshot_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Snapshot Digest",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "kind",
+    "tenant_id",
+    "alert_id",
+    "projection_seq",
+    "projection_version",
+    "change_order",
+    "original_admission_order",
+    "native_version",
+    "actor_id",
+    "cause",
+    "effective_at",
+    "recorded_at",
+    "snapshot_ref",
+    "snapshot_digest"
+  ],
+  "title": "ChangedEnvelope",
+  "type": "object"
+}

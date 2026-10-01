@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Self-contained validated receipt; version 1 was a legacy PG reference.",
+  "properties": {
+    "schema_version": {
+      "const": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "alerts.received",
+      "title": "Kind",
+      "type": "string"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "operator_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Operator Id"
+    },
+    "credential_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Credential Id"
+    },
+    "policy_generation": {
+      "anyOf": [
+        {
+          "description": "Canonical decimal int64, at most 9223372036854775807",
+          "pattern": "^(0|[1-9][0-9]{0,18})$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Policy Generation"
+    },
+    "native_version": {
+      "enum": [
+        "v1",
+        "v2"
+      ],
+      "title": "Native Version",
+      "type": "string"
+    },
+    "received_at": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "title": "Received At",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Payload",
+      "type": "object"
+    },
+    "raw_json": {
+      "maxLength": 65536,
+      "title": "Raw Json",
+      "type": "string"
+    },
+    "time_defaulted": {
+      "title": "Time Defaulted",
+      "type": "boolean"
+    },
+    "key_field": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Key Field",
+      "type": "string"
+    },
+    "identity_material": {
+      "title": "Identity Material",
+      "type": "string"
+    },
+    "adapter_version": {
+      "anyOf": [
+        {
+          "const": "appchi-grafana-v1",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Adapter Version"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "event_id",
+    "tenant_id",
+    "operator_id",
+    "credential_id",
+    "policy_generation",
+    "native_version",
+    "received_at",
+    "payload",
+    "raw_json",
+    "time_defaulted",
+    "key_field",
+    "identity_material",
+    "adapter_version"
+  ],
+  "title": "KafkaReceivedEnvelope",
+  "type": "object"
+}

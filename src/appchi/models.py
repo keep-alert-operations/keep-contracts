@@ -29,15 +29,13 @@ class Command(StrictModel):
 
 
 class AlertCommand(Command):
-    kind: Literal["set_status", "set_acknowledged", "set_assignee"]
-    value: str | bool | None
+    kind: Literal["set_status", "set_assignee"]
+    value: str | None
 
     @model_validator(mode="after")
     def typed_value(self):
         if self.kind == "set_status" and self.value not in ("firing", "resolved"):
             raise ValueError("Status must be firing or resolved")
-        if self.kind == "set_acknowledged" and type(self.value) is not bool:
-            raise ValueError("Acknowledgement must be boolean")
         if self.kind == "set_assignee" and self.value is not None:
             uuid_string(self.value)
         return self
@@ -63,8 +61,8 @@ class BulkItem(StrictModel):
 
 class BulkCommand(StrictModel):
     command_id: str
-    kind: Literal["set_status", "set_acknowledged", "set_assignee"]
-    value: str | bool | None
+    kind: Literal["set_status", "set_assignee"]
+    value: str | None
     items: list[BulkItem]
     _id = field_validator("command_id")(uuid_string)
 

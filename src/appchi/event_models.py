@@ -109,3 +109,34 @@ class ReceivedEnvelope(StrictModel):
 
 
 EVENT_MODELS = {"alerts.changed": ChangedEnvelope, "alerts.received": ReceivedEnvelope}
+
+
+class KafkaReceivedEnvelope(StrictModel):
+    """Self-contained validated receipt; version 1 was a legacy PG reference."""
+
+    schema_version: Literal[2]
+    kind: Literal["alerts.received"]
+    event_id: Identifier
+    tenant_id: Identifier
+    operator_id: Identifier | None
+    credential_id: Identifier | None
+    policy_generation: Counter | None
+    native_version: Literal["v1", "v2"]
+    received_at: Instant
+    payload: dict[str, str]
+    raw_json: Annotated[str, Field(max_length=65536)]
+    time_defaulted: bool
+    key_field: Annotated[str, Field(min_length=1, max_length=2048)]
+    identity_material: str
+    adapter_version: Literal["appchi-grafana-v1"] | None
+
+    @model_validator(mode="after")
+    def routing_scope(self):
+        if self.native_version == "v2" and not all((self.operator_id, self.credential_id, self.policy_generation)):
+            raise ValueError("V2 requires trusted credential routing")
+        if self.native_version == "v1" and any((self.operator_id, self.credential_id, self.policy_generation, self.adapter_version)):
+            raise ValueError("V1 cannot carry managed operator context")
+        return self
+
+
+EVENT_MODELS["alerts.received.v2"] = KafkaReceivedEnvelope

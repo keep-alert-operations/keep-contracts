@@ -1,0 +1,1554 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Appchi",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/livez": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Livez",
+        "operationId": "livez_livez_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readyz",
+        "operationId": "readyz_readyz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/v1/alerts": {
+      "post": {
+        "tags": [
+          "ingestion"
+        ],
+        "summary": "Ingest V1",
+        "operationId": "ingest_v1_api_ingest_v1_alerts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "application": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "key_field": {
+                        "type": "string",
+                        "maxLength": 1024,
+                        "minLength": 1
+                      },
+                      "message": {
+                        "type": "string",
+                        "maxLength": 8192,
+                        "minLength": 1
+                      },
+                      "node_name": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "object": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "operator": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "major",
+                          "warning",
+                          "clear"
+                        ],
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "time_created": {
+                        "type": "string",
+                        "pattern": "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "application",
+                      "message",
+                      "node_name",
+                      "object",
+                      "operator",
+                      "severity",
+                      "time_created"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "alerts": {
+                        "items": {
+                          "properties": {
+                            "event_id": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9._:-]{1,128}$"
+                            },
+                            "payload": {
+                              "properties": {
+                                "application": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "key_field": {
+                                  "type": "string",
+                                  "maxLength": 1024,
+                                  "minLength": 1
+                                },
+                                "message": {
+                                  "type": "string",
+                                  "maxLength": 8192,
+                                  "minLength": 1
+                                },
+                                "node_name": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "object": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "operator": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "severity": {
+                                  "type": "string",
+                                  "enum": [
+                                    "error",
+                                    "major",
+                                    "warning",
+                                    "clear"
+                                  ],
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "time_created": {
+                                  "type": "string",
+                                  "pattern": "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "type": "object",
+                              "required": [
+                                "application",
+                                "message",
+                                "node_name",
+                                "object",
+                                "operator",
+                                "severity",
+                                "time_created"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "payload"
+                          ]
+                        },
+                        "type": "array",
+                        "maxItems": 100,
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "alerts"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "All items acknowledged by Kafka; eventual PostgreSQL application is not guaranteed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Mixed acceptance, validation rejection or unconfirmed publication. Retry failed members only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "All members failed validation, or legacy metadata was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Admission dependency/deadline failure, or no member was acknowledged and at least one publication failed. Acknowledgement uncertainty may leave Kafka duplicates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/v2/alerts": {
+      "post": {
+        "tags": [
+          "ingestion"
+        ],
+        "summary": "Ingest V2",
+        "operationId": "ingest_v2_api_ingest_v2_alerts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "application": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "component": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "impact": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "minLength": 1
+                      },
+                      "message": {
+                        "type": "string",
+                        "maxLength": 8192,
+                        "minLength": 1
+                      },
+                      "node_name": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "runbook_url": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "minLength": 1
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "critical",
+                          "high",
+                          "warning"
+                        ],
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "site": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "firing",
+                          "suspended",
+                          "resolved"
+                        ],
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
+                      "time_created": {
+                        "type": "string",
+                        "pattern": "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "application",
+                      "component",
+                      "impact",
+                      "message",
+                      "runbook_url",
+                      "severity",
+                      "site",
+                      "status"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "alerts": {
+                        "items": {
+                          "properties": {
+                            "event_id": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9._:-]{1,128}$"
+                            },
+                            "payload": {
+                              "properties": {
+                                "application": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "component": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "impact": {
+                                  "type": "string",
+                                  "maxLength": 4096,
+                                  "minLength": 1
+                                },
+                                "message": {
+                                  "type": "string",
+                                  "maxLength": 8192,
+                                  "minLength": 1
+                                },
+                                "node_name": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "runbook_url": {
+                                  "type": "string",
+                                  "maxLength": 2048,
+                                  "minLength": 1
+                                },
+                                "severity": {
+                                  "type": "string",
+                                  "enum": [
+                                    "critical",
+                                    "high",
+                                    "warning"
+                                  ],
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "site": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "firing",
+                                    "suspended",
+                                    "resolved"
+                                  ],
+                                  "maxLength": 256,
+                                  "minLength": 1
+                                },
+                                "time_created": {
+                                  "type": "string",
+                                  "pattern": "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "type": "object",
+                              "required": [
+                                "application",
+                                "component",
+                                "impact",
+                                "message",
+                                "runbook_url",
+                                "severity",
+                                "site",
+                                "status"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "payload"
+                          ]
+                        },
+                        "type": "array",
+                        "maxItems": 100,
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "alerts"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "All items acknowledged by Kafka; eventual PostgreSQL application is not guaranteed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Mixed acceptance, validation rejection or unconfirmed publication. Retry failed members only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "All members failed validation, or legacy metadata was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Admission dependency/deadline failure, or no member was acknowledged and at least one publication failed. Acknowledgement uncertainty may leave Kafka duplicates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/v2/grafana": {
+      "post": {
+        "tags": [
+          "ingestion"
+        ],
+        "summary": "Ingest Grafana",
+        "operationId": "ingest_grafana_api_ingest_v2_grafana_post",
+        "responses": {
+          "202": {
+            "description": "All items acknowledged by Kafka; eventual PostgreSQL application is not guaranteed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Mixed acceptance, validation rejection or unconfirmed publication. Retry failed members only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0.0
+                          },
+                          "status": {
+                            "type": "integer",
+                            "enum": [
+                              202,
+                              422,
+                              503
+                            ]
+                          },
+                          "disposition": {
+                            "type": "string",
+                            "enum": [
+                              "accepted",
+                              "rejected",
+                              "publish_failed"
+                            ]
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              },
+                              "fields": {}
+                            },
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "type": "object",
+                        "required": [
+                          "index",
+                          "status",
+                          "disposition"
+                        ]
+                      },
+                      "type": "array",
+                      "maxItems": 100,
+                      "minItems": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "request_id",
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "All members failed validation, or legacy metadata was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Admission dependency/deadline failure, or no member was acknowledged and at least one publication failed. Acknowledgement uncertainty may leave Kafka duplicates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "results": {
+                          "items": {
+                            "properties": {
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0.0
+                              },
+                              "status": {
+                                "type": "integer",
+                                "enum": [
+                                  202,
+                                  422,
+                                  503
+                                ]
+                              },
+                              "disposition": {
+                                "type": "string",
+                                "enum": [
+                                  "accepted",
+                                  "rejected",
+                                  "publish_failed"
+                                ]
+                              },
+                              "received_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  },
+                                  "fields": {}
+                                },
+                                "type": "object",
+                                "required": [
+                                  "code",
+                                  "message"
+                                ]
+                              }
+                            },
+                            "type": "object",
+                            "required": [
+                              "index",
+                              "status",
+                              "disposition"
+                            ]
+                          },
+                          "type": "array",
+                          "maxItems": 100,
+                          "minItems": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "results"
+                      ]
+                    },
+                    {
+                      "properties": {
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "request_id": {
+                              "type": "string"
+                            },
+                            "fields": {}
+                          },
+                          "type": "object",
+                          "required": [
+                            "code",
+                            "message",
+                            "request_id"
+                          ]
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

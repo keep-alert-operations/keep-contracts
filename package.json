@@ -1,0 +1,10 @@
+{
+  "name": "@appchi/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native alert and Kafka contracts, HTTP schema artifacts and shared serialization.",
+  "files": [
+    "schemas"
+  ],
+  "license": "UNLICENSED"
+}

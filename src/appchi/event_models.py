@@ -132,9 +132,13 @@ class KafkaReceivedEnvelope(StrictModel):
 
     @model_validator(mode="after")
     def routing_scope(self):
-        if self.native_version == "v2" and not all((self.operator_id, self.credential_id, self.policy_generation)):
+        if self.native_version == "v2" and not all(
+            (self.operator_id, self.credential_id, self.policy_generation)
+        ):
             raise ValueError("V2 requires trusted credential routing")
-        if self.native_version == "v1" and any((self.operator_id, self.credential_id, self.policy_generation, self.adapter_version)):
+        if self.native_version == "v1" and any(
+            (self.operator_id, self.credential_id, self.policy_generation, self.adapter_version)
+        ):
             raise ValueError("V1 cannot carry managed operator context")
         return self
 

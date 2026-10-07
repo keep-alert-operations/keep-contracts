@@ -2227,6 +2227,106 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/alerts/counts": {
+      "post": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Quick Counts",
+        "operationId": "quick_counts_api_tenants__tenant_id__alerts_counts_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickCountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenants/{tenant_id}/alerts/snapshot/close": {
+      "post": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Close Snapshot",
+        "operationId": "close_snapshot_api_tenants__tenant_id__alerts_snapshot_close_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapshotClose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/dashboards/{dashboard_id}/counts": {
       "post": {
         "tags": [
@@ -7608,6 +7708,22 @@
             }
           },
           {
+            "name": "replace_cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Replace Cursor"
+            }
+          },
+          {
             "name": "sort",
             "in": "query",
             "required": false,
@@ -11051,6 +11167,58 @@
         ],
         "title": "ProfileResponse"
       },
+      "QuickCountQuery": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "cel": {
+            "type": "string",
+            "maxLength": 16384,
+            "title": "Cel",
+            "default": "true"
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Q",
+            "default": ""
+          },
+          "include_suppressed": {
+            "type": "boolean",
+            "title": "Include Suppressed",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "QuickCountQuery"
+      },
+      "QuickCountRequest": {
+        "properties": {
+          "queries": {
+            "items": {
+              "$ref": "#/components/schemas/QuickCountQuery"
+            },
+            "type": "array",
+            "maxItems": 24,
+            "minItems": 1,
+            "title": "Queries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "queries"
+        ],
+        "title": "QuickCountRequest"
+      },
       "Replace": {
         "properties": {
           "name": {
@@ -11238,6 +11406,22 @@
           "kind"
         ],
         "title": "ScheduleEdit"
+      },
+      "SnapshotClose": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 65536,
+            "minLength": 1,
+            "title": "Token"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "SnapshotClose"
       },
       "Sort": {
         "properties": {

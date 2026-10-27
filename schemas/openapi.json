@@ -2488,6 +2488,59 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/presets/preview/groups": {
+      "post": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Preset Preview Groups",
+        "description": "Grouped saved or candidate preview (REV-44); group rows continue through preview.",
+        "operationId": "preset_preview_groups_api_tenants__tenant_id__presets_preview_groups_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetGroups"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertGroupPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/maintenance": {
       "post": {
         "tags": [
@@ -7742,6 +7795,48 @@
               "default": "desc",
               "title": "Direction"
             }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group By"
+            }
+          },
+          {
+            "name": "group_key",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group Key"
+            }
+          },
+          {
+            "name": "group_empty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Group Empty"
+            }
           }
         ],
         "responses": {
@@ -7751,6 +7846,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AlertPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenants/{tenant_id}/alerts/groups": {
+      "post": {
+        "tags": [
+          "search"
+        ],
+        "summary": "Feed Groups",
+        "description": "Grouped first view of the Feed (REV-44); group rows continue through the feed.",
+        "operationId": "feed_groups_api_tenants__tenant_id__alerts_groups_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlertGroupsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertGroupPage"
                 }
               }
             }
@@ -9807,6 +9955,203 @@
         "type": "object",
         "title": "AlertDisplayNames"
       },
+      "AlertGroupNames": {
+        "properties": {
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key",
+            "description": "The group's value of the grouping field; null groups alerts without one."
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label",
+            "description": "Directory name or incident title for assignee and incident groups; null otherwise or when unknown."
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total",
+            "description": "Exact alerts in the group as a decimal string; null when unavailable."
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity",
+            "description": "Exact alerts per severity in the group; null when unavailable."
+          },
+          "status": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "Exact alerts per visible status, for severity groups only; null otherwise."
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AlertDisplayNames"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor",
+            "description": "Continues this group's rows through the feed's group paging."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "key",
+          "total",
+          "data"
+        ],
+        "title": "AlertGroupNames"
+      },
+      "AlertGroupPage": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AlertGroupNames"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "next_group_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Group Cursor"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AlertGroupPage"
+      },
+      "AlertGroupsRequest": {
+        "properties": {
+          "cel": {
+            "type": "string",
+            "maxLength": 16384,
+            "title": "Cel",
+            "default": "true"
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Q",
+            "default": ""
+          },
+          "include_suppressed": {
+            "type": "boolean",
+            "title": "Include Suppressed",
+            "default": false
+          },
+          "sort": {
+            "type": "string",
+            "title": "Sort",
+            "default": "timestamp"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "title": "Direction",
+            "default": "desc"
+          },
+          "group_by": {
+            "type": "string",
+            "title": "Group By"
+          },
+          "group_limit": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Group Limit",
+            "default": 10
+          },
+          "rows_per_group": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Rows Per Group",
+            "default": 5
+          },
+          "group_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 65536,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group_by"
+        ],
+        "title": "AlertGroupsRequest"
+      },
       "AlertPage": {
         "properties": {
           "data": {
@@ -10850,6 +11195,17 @@
             "minItems": 1,
             "title": "Columns"
           },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
+          },
           "command_id": {
             "type": "string",
             "title": "Command Id"
@@ -10893,6 +11249,17 @@
             "maxItems": 30,
             "minItems": 1,
             "title": "Columns"
+          },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
           }
         },
         "additionalProperties": false,
@@ -10904,6 +11271,128 @@
           "columns"
         ],
         "title": "PresetDefinition"
+      },
+      "PresetGroups": {
+        "properties": {
+          "preset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preset Id"
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision"
+          },
+          "cel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16384
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cel"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Sort"
+                },
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort"
+          },
+          "columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 30,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Columns"
+          },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Q",
+            "default": ""
+          },
+          "include_suppressed": {
+            "type": "boolean",
+            "title": "Include Suppressed",
+            "default": false
+          },
+          "group_limit": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Group Limit",
+            "default": 10
+          },
+          "rows_per_group": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Rows Per Group",
+            "default": 5
+          },
+          "group_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 65536,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PresetGroups"
       },
       "PresetPreview": {
         "properties": {
@@ -10973,6 +11462,17 @@
             ],
             "title": "Columns"
           },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
+          },
           "q": {
             "type": "string",
             "maxLength": 256,
@@ -11016,6 +11516,23 @@
               }
             ],
             "title": "Replace Cursor"
+          },
+          "group_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Key"
+          },
+          "group_empty": {
+            "type": "boolean",
+            "title": "Group Empty",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -11049,6 +11566,17 @@
             "maxItems": 30,
             "minItems": 1,
             "title": "Columns"
+          },
+          "group_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group By"
           },
           "command_id": {
             "type": "string",

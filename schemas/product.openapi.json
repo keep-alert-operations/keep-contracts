@@ -8290,7 +8290,8 @@
             "type": "string",
             "enum": [
               "set_status",
-              "set_assignee"
+              "set_assignee",
+              "set_dismissal"
             ],
             "title": "Kind"
           },
@@ -8298,6 +8299,9 @@
             "anyOf": [
               {
                 "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/DismissalValue"
               },
               {
                 "type": "null"
@@ -8371,6 +8375,18 @@
             "title": "Active Incident Title",
             "description": "Title of the retained same-tenant active incident; null otherwise."
           },
+          "dismissed_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissed Until",
+            "description": "End of the alert's timed dismissal (REV-49); `suppressed` already reflects it at the response's clock."
+          },
           "active_incident_id": {
             "anyOf": [
               {
@@ -8382,11 +8398,63 @@
             ],
             "title": "Active Incident Id",
             "description": "Retained same-tenant active owning incident (PG ownership); null otherwise."
+          },
+          "dismissal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlertDismissal"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The alert's timed dismissal (REV-49); null when none is stored."
           }
         },
         "additionalProperties": true,
         "type": "object",
         "title": "AlertDetailNames"
+      },
+      "AlertDismissal": {
+        "properties": {
+          "until": {
+            "type": "string",
+            "title": "Until",
+            "description": "UTC end of the dismissal; it stops suppressing the alert then."
+          },
+          "dismissed_at": {
+            "type": "string",
+            "title": "Dismissed At"
+          },
+          "dismissed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissed By"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "active",
+              "expired"
+            ],
+            "title": "State",
+            "description": "Expired once the end has passed but before a write recorded that it ended."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "until",
+          "dismissed_at",
+          "state"
+        ],
+        "title": "AlertDismissal"
       },
       "AlertDisplayNames": {
         "properties": {
@@ -8442,6 +8510,18 @@
             ],
             "title": "Active Incident Title",
             "description": "Title of the retained same-tenant active incident; null otherwise."
+          },
+          "dismissed_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissed Until",
+            "description": "End of the alert's timed dismissal (REV-49); `suppressed` already reflects it at the response's clock."
           }
         },
         "additionalProperties": true,
@@ -9008,6 +9088,50 @@
           "column"
         ],
         "title": "Diagnostic"
+      },
+      "DismissalValue": {
+        "properties": {
+          "until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Until"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2592000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DismissalValue",
+        "description": "A timed dismissal (REV-49): exactly one of an end instant or a duration."
       },
       "Function": {
         "properties": {

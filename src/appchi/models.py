@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated, Literal
 import re
 from uuid import UUID
@@ -28,12 +29,51 @@ class Command(StrictModel):
         return value
 
 
+class DismissalValue(StrictModel):
+    """A timed dismissal (REV-49): exactly one of an end instant or a duration."""
+
+    until: str | None = None
+    duration_seconds: Annotated[int, Field(ge=1, le=30 * 86400)] | None = None
+    reason: Annotated[str, Field(max_length=10000)] | None = None
+
+    @field_validator("until")
+    @classmethod
+    def instant(cls, value):
+        if value is None:
+            return value
+        if not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?(Z|[+-]\d{2}:\d{2})", value
+        ):
+            raise ValueError("An RFC 3339 instant with an explicit offset is required")
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return value
+
+    @field_validator("reason")
+    @classmethod
+    def note(cls, value):
+        if value is not None and "\x00" in value:
+            raise ValueError("A plain-text reason is required")
+        return value
+
+    @model_validator(mode="after")
+    def one_end(self):
+        if (self.until is None) == (self.duration_seconds is None):
+            raise ValueError("Give exactly one of until or duration_seconds")
+        return self
+
+
 class AlertCommand(Command):
-    kind: Literal["set_status", "set_assignee"]
-    value: str | None
+    kind: Literal["set_status", "set_assignee", "set_dismissal"]
+    value: str | DismissalValue | None
 
     @model_validator(mode="after")
     def typed_value(self):
+        if self.kind == "set_dismissal":
+            if isinstance(self.value, str):
+                raise ValueError("A dismissal value is an object or null")
+            return self
+        if isinstance(self.value, DismissalValue):
+            raise ValueError("Only set_dismissal takes an object value")
         if self.kind == "set_status" and self.value not in ("firing", "resolved"):
             raise ValueError("Status must be firing or resolved")
         if self.kind == "set_assignee" and self.value is not None:

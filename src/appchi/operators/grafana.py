@@ -130,6 +130,14 @@ def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
             )
             if "node_name" in labels:
                 payload["node_name"] = labels["node_name"]
+            # Grafana sets alertname to the mandatory rule title (REV-54).
+            if "alertname" not in labels:
+                raise AppError(
+                    "invalid_fields",
+                    "Grafana alertname label (the alert rule name) is required",
+                    fields=[{"path": "labels.alertname"}],
+                )
+            payload["name"] = labels["alertname"]
             payload["status"] = alert["status"]
             payload["time_created"] = _starts_at(alert.get("startsAt"))
             payload = validate_native(payload, "v2", canonical(payload))

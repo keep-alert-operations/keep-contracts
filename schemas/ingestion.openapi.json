@@ -622,6 +622,11 @@
                         "maxLength": 8192,
                         "minLength": 1
                       },
+                      "name": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "minLength": 1
+                      },
                       "node_name": {
                         "type": "string",
                         "maxLength": 256,
@@ -704,6 +709,11 @@
                                 "message": {
                                   "type": "string",
                                   "maxLength": 8192,
+                                  "minLength": 1
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "maxLength": 256,
                                   "minLength": 1
                                 },
                                 "node_name": {

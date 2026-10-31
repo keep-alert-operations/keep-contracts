@@ -12,6 +12,7 @@ def member():
         "startsAt": "2026-09-22T15:00:01.123456789+03:00",
         "labels": {
             "Appchi - Payments": "true",
+            "alertname": "High CPU",
             "application": "pay",
             "component": "cpu",
             "severity": "critical",
@@ -52,6 +53,7 @@ def test_exact_native_mapping_ignores_group_status_and_untrusted_routing():
         "message": "Problem",
         "impact": "Requests affected",
         "runbook_url": "https://example.org/runbook",
+        "name": "High CPU",
         "status": "firing",
         "time_created": "22-09-2026 12:00:01",
     }
@@ -127,3 +129,30 @@ def test_duplicate_json_keys_and_ambiguous_headers_rejected():
     ):
         with pytest.raises(AppError):
             bearer_credential(headers)
+
+
+def test_alertname_label_is_the_required_alert_name():
+    """Requirements: operator operations 18; alert operations 5 (REV-54)."""
+    alert = member()
+    alert["labels"]["alertname"] = "Disk  fullé"
+    assert map_webhook(body(alert), OperatorRouting("Payments"))[0].payload["name"] == (
+        "Disk  fullé"
+    )
+    for update in (None, "", " ", "x" * 257, "bad\nname"):
+        alert = member()
+        if update is None:
+            del alert["labels"]["alertname"]
+        else:
+            alert["labels"]["alertname"] = update
+        mapped = map_webhook(body(member(), alert), OperatorRouting("Payments"))
+        assert mapped[0].payload and mapped[1].payload is None
+        assert mapped[1].error["code"] in {
+            "invalid_fields",
+            "invalid_string",
+            "field_too_long",
+            "invalid_character",
+        }
+    del alert["labels"]["alertname"]
+    error = map_webhook(body(alert), OperatorRouting("Payments"))[0].error
+    assert error["code"] == "invalid_fields"
+    assert error["fields"] == [{"path": "labels.alertname"}]

@@ -10,8 +10,17 @@ from appchi.shared.errors import AppError
 RETRY_ID = re.compile(r"[A-Za-z0-9._:-]{1,128}\Z")
 V1 = {"application", "object", "node_name", "message", "operator", "time_created", "severity"}
 V2 = {"application", "component", "message", "severity", "status", "site", "impact", "runbook_url"}
-OPTIONAL = {"v1": {"key_field"}, "v2": {"node_name", "time_created"}}
-IDENTIFIERS = {"application", "object", "component", "node_name", "site", "operator", "key_field"}
+OPTIONAL = {"v1": {"key_field"}, "v2": {"node_name", "time_created", "name"}}
+IDENTIFIERS = {
+    "application",
+    "object",
+    "component",
+    "node_name",
+    "site",
+    "operator",
+    "key_field",
+    "name",
+}
 LIMITS = {"message": 8192, "impact": 4096, "runbook_url": 2048, "key_field": 1024}
 
 
@@ -216,6 +225,11 @@ def identity(payload, version, operator_id=None):
             payload["impact"],
             payload["runbook_url"],
         ]
+        # A supplied name is the tenth input under identity format 2 (REV-54);
+        # unnamed deliveries keep format 1, so their existing keys are unchanged.
+        named = "name" in payload
+        if named:
+            fields.append(payload["name"])
         encoded = (
             "["
             + ",".join(
@@ -224,7 +238,7 @@ def identity(payload, version, operator_id=None):
             )
             + "]"
         )
-        material = b"alerts:v2:identity:1\n" + encoded.encode()
+        material = f"alerts:v2:identity:{2 if named else 1}\n".encode() + encoded.encode()
         key = hashlib.sha256(material).hexdigest()
     return key, hashlib.sha256(key.encode()).digest(), material
 

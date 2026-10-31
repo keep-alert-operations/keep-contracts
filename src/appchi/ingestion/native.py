@@ -179,27 +179,29 @@ def validate_native(payload, version, raw):
             native_time(payload["time_created"])
         except ValueError:
             raise AppError("invalid_time", "Expected valid UTC DD-MM-YYYY HH:mm:ss.") from None
-    if "runbook_url" in payload:
-        url = payload["runbook_url"]
-        try:
-            parts = urlsplit(url)
-            valid = (
-                parts.scheme in {"http", "https"}
-                and parts.hostname
-                and not parts.username
-                and not parts.password
-                and "@" not in parts.netloc
-            )
-            valid = valid and not any(
-                c.isspace() or ord(c) < 32 or 127 <= ord(c) <= 159 for c in url
-            )
-        except ValueError:
-            valid = False
-        if not valid:
-            raise AppError(
-                "invalid_url", "Expected an absolute HTTP(S) URL without credentials or whitespace."
-            )
+    if "runbook_url" in payload and not http_url(payload["runbook_url"]):
+        raise AppError(
+            "invalid_url", "Expected an absolute HTTP(S) URL without credentials or whitespace."
+        )
     return dict(payload)
+
+
+def http_url(url: str) -> bool:
+    """An absolute HTTP(S) URL with a host, without credentials, whitespace or controls."""
+    try:
+        parts = urlsplit(url)
+        valid = (
+            parts.scheme in {"http", "https"}
+            and parts.hostname
+            and not parts.username
+            and not parts.password
+            and "@" not in parts.netloc
+        )
+        return bool(valid) and not any(
+            c.isspace() or ord(c) < 32 or 127 <= ord(c) <= 159 for c in url
+        )
+    except ValueError:
+        return False
 
 
 def identity(payload, version, operator_id=None):

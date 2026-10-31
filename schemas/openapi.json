@@ -6583,6 +6583,89 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/reports/incidents": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Incident Report",
+        "description": "Incident figures for one tenant and period (incident operations 20).",
+        "operationId": "incident_report_api_tenants__tenant_id__reports_incidents_get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "title": "To"
+            }
+          },
+          {
+            "name": "time_zone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "UTC",
+              "title": "Time Zone"
+            }
+          },
+          {
+            "name": "compare",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Compare"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentReportRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants": {
       "get": {
         "tags": [
@@ -11040,6 +11123,96 @@
         ],
         "title": "IncidentRead"
       },
+      "IncidentReport": {
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/ReportPeriod"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_unavailable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Unavailable",
+            "description": "past_retention, not_requested or null."
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ReportSummary"
+          },
+          "previous_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/ReportSeriesBin"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "breakdowns": {
+            "$ref": "#/components/schemas/ReportBreakdowns"
+          },
+          "unavailable": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unavailable",
+            "description": "Sections that could not be read in time."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "period",
+          "previous",
+          "previous_unavailable",
+          "summary",
+          "previous_summary",
+          "series",
+          "breakdowns",
+          "unavailable"
+        ],
+        "title": "IncidentReport"
+      },
+      "IncidentReportRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/IncidentReport"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ReportMeta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "IncidentReportRead"
+      },
       "IncidentStatus": {
         "properties": {
           "command_id": {
@@ -11928,6 +12101,646 @@
           "expected_revision"
         ],
         "title": "Replace"
+      },
+      "ReportAssigneeBreakdown": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ReportAssigneeGroup"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "other": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportOtherGroups"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rows",
+          "other"
+        ],
+        "title": "ReportAssigneeBreakdown"
+      },
+      "ReportAssigneeGroup": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          },
+          "first_response_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Response Median Seconds"
+          },
+          "time_to_resolve_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Resolve Median Seconds"
+          },
+          "assignee_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assignee Id"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "resolved",
+          "reopened",
+          "first_response_median_seconds",
+          "time_to_resolve_median_seconds",
+          "assignee_id",
+          "display_name"
+        ],
+        "title": "ReportAssigneeGroup"
+      },
+      "ReportBreakdowns": {
+        "properties": {
+          "severity": {
+            "items": {
+              "$ref": "#/components/schemas/ReportSeverityGroup"
+            },
+            "type": "array",
+            "title": "Severity"
+          },
+          "origin": {
+            "items": {
+              "$ref": "#/components/schemas/ReportOriginGroup"
+            },
+            "type": "array",
+            "title": "Origin"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/ReportRuleBreakdown"
+          },
+          "assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportAssigneeBreakdown"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null when assignment history is unavailable."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "severity",
+          "origin",
+          "rule",
+          "assignee"
+        ],
+        "title": "ReportBreakdowns"
+      },
+      "ReportDurations": {
+        "properties": {
+          "median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds"
+          },
+          "p90_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "median_seconds",
+          "p90_seconds"
+        ],
+        "title": "ReportDurations"
+      },
+      "ReportFirstResponse": {
+        "properties": {
+          "median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds"
+          },
+          "p90_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Seconds"
+          },
+          "responded": {
+            "type": "string",
+            "title": "Responded"
+          },
+          "waiting": {
+            "type": "string",
+            "title": "Waiting"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "median_seconds",
+          "p90_seconds",
+          "responded",
+          "waiting"
+        ],
+        "title": "ReportFirstResponse"
+      },
+      "ReportMeta": {
+        "properties": {
+          "computed_at": {
+            "type": "string",
+            "title": "Computed At"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "computed_at"
+        ],
+        "title": "ReportMeta"
+      },
+      "ReportOriginGroup": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          },
+          "first_response_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Response Median Seconds"
+          },
+          "time_to_resolve_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Resolve Median Seconds"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "resolved",
+          "reopened",
+          "first_response_median_seconds",
+          "time_to_resolve_median_seconds",
+          "origin"
+        ],
+        "title": "ReportOriginGroup"
+      },
+      "ReportOtherGroups": {
+        "properties": {
+          "groups": {
+            "type": "string",
+            "title": "Groups"
+          },
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "groups",
+          "opened",
+          "resolved",
+          "reopened"
+        ],
+        "title": "ReportOtherGroups"
+      },
+      "ReportPeriod": {
+        "properties": {
+          "requested_from": {
+            "type": "string",
+            "title": "Requested From"
+          },
+          "requested_to": {
+            "type": "string",
+            "title": "Requested To"
+          },
+          "covered_from": {
+            "type": "string",
+            "title": "Covered From",
+            "description": "Start of the reported range after the 90-day retention clamp."
+          },
+          "covered_to": {
+            "type": "string",
+            "title": "Covered To"
+          },
+          "retention_from": {
+            "type": "string",
+            "title": "Retention From",
+            "description": "Earliest instant whose history is guaranteed to be retained."
+          },
+          "time_zone": {
+            "type": "string",
+            "title": "Time Zone"
+          },
+          "bin": {
+            "type": "string",
+            "title": "Bin",
+            "description": "hour, day or week."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "requested_from",
+          "requested_to",
+          "covered_from",
+          "covered_to",
+          "retention_from",
+          "time_zone",
+          "bin"
+        ],
+        "title": "ReportPeriod"
+      },
+      "ReportRange": {
+        "properties": {
+          "from": {
+            "type": "string",
+            "title": "From"
+          },
+          "to": {
+            "type": "string",
+            "title": "To"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from",
+          "to"
+        ],
+        "title": "ReportRange"
+      },
+      "ReportResolvedByCause": {
+        "properties": {
+          "manual": {
+            "type": "string",
+            "title": "Manual"
+          },
+          "alerts_resolved": {
+            "type": "string",
+            "title": "Alerts Resolved"
+          },
+          "inactivity": {
+            "type": "string",
+            "title": "Inactivity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "manual",
+          "alerts_resolved",
+          "inactivity"
+        ],
+        "title": "ReportResolvedByCause"
+      },
+      "ReportRuleBreakdown": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ReportRuleGroup"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "other": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportOtherGroups"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rows",
+          "other"
+        ],
+        "title": "ReportRuleBreakdown"
+      },
+      "ReportRuleGroup": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          },
+          "first_response_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Response Median Seconds"
+          },
+          "time_to_resolve_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Resolve Median Seconds"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Null for a deleted rule whose history is no longer retained."
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "resolved",
+          "reopened",
+          "first_response_median_seconds",
+          "time_to_resolve_median_seconds",
+          "rule_id",
+          "name",
+          "deleted"
+        ],
+        "title": "ReportRuleGroup"
+      },
+      "ReportSeriesBin": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start",
+          "opened",
+          "resolved"
+        ],
+        "title": "ReportSeriesBin"
+      },
+      "ReportSeverityGroup": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          },
+          "first_response_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Response Median Seconds"
+          },
+          "time_to_resolve_median_seconds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Resolve Median Seconds"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "resolved",
+          "reopened",
+          "first_response_median_seconds",
+          "time_to_resolve_median_seconds",
+          "severity"
+        ],
+        "title": "ReportSeverityGroup"
+      },
+      "ReportSummary": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "title": "Opened"
+          },
+          "opened_new": {
+            "type": "string",
+            "title": "Opened New"
+          },
+          "opened_reopened": {
+            "type": "string",
+            "title": "Opened Reopened"
+          },
+          "resolved": {
+            "type": "string",
+            "title": "Resolved"
+          },
+          "resolved_by_cause": {
+            "$ref": "#/components/schemas/ReportResolvedByCause"
+          },
+          "reopened": {
+            "type": "string",
+            "title": "Reopened"
+          },
+          "time_to_resolve": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportDurations"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "first_response": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportFirstResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null when assignment history is unavailable."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "opened_new",
+          "opened_reopened",
+          "resolved",
+          "resolved_by_cause",
+          "reopened",
+          "time_to_resolve",
+          "first_response"
+        ],
+        "title": "ReportSummary"
       },
       "SavedTest": {
         "properties": {

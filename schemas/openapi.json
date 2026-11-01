@@ -11013,6 +11013,42 @@
             ],
             "title": "Origin Rule Name",
             "description": "Current name of the originating rule; null when deleted or unknown."
+          },
+          "total_linked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Linked",
+            "description": "Current linked alert references, each counted once, including unavailable ones."
+          },
+          "suppressed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suppressed",
+            "description": "Retained linked alerts suppressed by maintenance or dismissal now; null in a list row whose maintenance proof is not yet current (REV-56)."
+          },
+          "unavailable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable",
+            "description": "Current linked references whose alert is no longer retained."
           }
         },
         "additionalProperties": true,

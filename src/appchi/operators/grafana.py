@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 import re
 
 from appchi.ingestion.native import (
+    LIMITS,
     canonical,
     format_native_time,
+    http_url,
     object_slices,
     parse_json,
     validate_native,
@@ -156,6 +158,23 @@ def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
                 )
             )
     return mapped
+
+
+def rule_url(original: bytes) -> str | None:
+    """The alert rule URL of one retained Grafana member (REV-55), else None.
+
+    Grafana's per-alert generatorURL links to the rule that fired the alert. It
+    is a transport field outside the native mapping, so a missing or invalid
+    value leaves the alert without a rule URL instead of rejecting it.
+    """
+    try:
+        member = parse_json(original)
+    except AppError:
+        return None
+    url = member.get("generatorURL") if isinstance(member, dict) else None
+    if not isinstance(url, str) or len(url) > LIMITS["runbook_url"] or not http_url(url):
+        return None
+    return url
 
 
 def bearer_credential(headers: list[tuple[str, str]]) -> str:

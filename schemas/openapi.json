@@ -11541,6 +11541,11 @@
             ],
             "title": "Group By"
           },
+          "noisy": {
+            "type": "boolean",
+            "title": "Noisy",
+            "default": false
+          },
           "command_id": {
             "type": "string",
             "title": "Command Id"
@@ -11595,6 +11600,11 @@
               }
             ],
             "title": "Group By"
+          },
+          "noisy": {
+            "type": "boolean",
+            "title": "Noisy",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -11912,6 +11922,11 @@
               }
             ],
             "title": "Group By"
+          },
+          "noisy": {
+            "type": "boolean",
+            "title": "Noisy",
+            "default": false
           },
           "command_id": {
             "type": "string",

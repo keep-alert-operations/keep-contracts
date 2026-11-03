@@ -9010,7 +9010,14 @@
           },
           "panels": {
             "items": {
-              "$ref": "#/components/schemas/Panel"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Panel"
+                },
+                {
+                  "$ref": "#/components/schemas/HtmlPanel"
+                }
+              ]
             },
             "type": "array",
             "maxItems": 24,
@@ -9038,7 +9045,14 @@
           },
           "panels": {
             "items": {
-              "$ref": "#/components/schemas/Panel"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Panel"
+                },
+                {
+                  "$ref": "#/components/schemas/HtmlPanel"
+                }
+              ]
             },
             "type": "array",
             "maxItems": 24,
@@ -9061,7 +9075,14 @@
           },
           "panels": {
             "items": {
-              "$ref": "#/components/schemas/Panel"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Panel"
+                },
+                {
+                  "$ref": "#/components/schemas/HtmlPanel"
+                }
+              ]
             },
             "type": "array",
             "maxItems": 24,
@@ -9092,7 +9113,14 @@
           },
           "panels": {
             "items": {
-              "$ref": "#/components/schemas/Panel"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Panel"
+                },
+                {
+                  "$ref": "#/components/schemas/HtmlPanel"
+                }
+              ]
             },
             "type": "array",
             "maxItems": 24,
@@ -9349,6 +9377,69 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HtmlPanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "type": {
+            "type": "string",
+            "const": "html",
+            "title": "Type"
+          },
+          "html": {
+            "type": "string",
+            "maxLength": 65536,
+            "title": "Html"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type",
+          "html"
+        ],
+        "title": "HtmlPanel",
+        "description": "A panel showing HTML; it references no preset (REV-57).\n\nValidation bounds only the raw size. Callers sanitize with ``sanitize_panels``\nafter authorizing the request, so unauthenticated bodies are never parsed."
       },
       "IncidentAssignment": {
         "properties": {
@@ -9928,10 +10019,6 @@
             "type": "string",
             "title": "Id"
           },
-          "preset_id": {
-            "type": "string",
-            "title": "Preset Id"
-          },
           "title": {
             "anyOf": [
               {
@@ -9964,6 +10051,16 @@
             "minimum": 2.0,
             "title": "H"
           },
+          "type": {
+            "type": "string",
+            "const": "count",
+            "title": "Type",
+            "default": "count"
+          },
+          "preset_id": {
+            "type": "string",
+            "title": "Preset Id"
+          },
           "thresholds": {
             "items": {
               "$ref": "#/components/schemas/Threshold"
@@ -9977,13 +10074,14 @@
         "type": "object",
         "required": [
           "id",
-          "preset_id",
           "x",
           "y",
           "w",
-          "h"
+          "h",
+          "preset_id"
         ],
-        "title": "Panel"
+        "title": "Panel",
+        "description": "A preset count panel; a panel without ``type`` is one (REV-57)."
       },
       "PresetCreate": {
         "properties": {

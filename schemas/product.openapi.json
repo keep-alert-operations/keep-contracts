@@ -9765,6 +9765,16 @@
             "minimum": 2.0,
             "title": "H"
           },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "type": {
             "type": "string",
             "const": "html",
@@ -9827,6 +9837,16 @@
             "type": "integer",
             "minimum": 2.0,
             "title": "H"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "type": {
             "type": "string",
@@ -10500,6 +10520,16 @@
             "minimum": 2.0,
             "title": "H"
           },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "type": {
             "type": "string",
             "const": "count",
@@ -10531,6 +10561,33 @@
         ],
         "title": "Panel",
         "description": "A preset count panel; a panel without ``type`` is one (REV-57)."
+      },
+      "PanelLink": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "Url"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "PanelLink",
+        "description": "A panel's link button: an http(s) address and optional button text (REV-66)."
       },
       "PresetCreate": {
         "properties": {
@@ -11998,6 +12055,16 @@
             "minimum": 2.0,
             "title": "H"
           },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "type": {
             "type": "string",
             "const": "servicenow",
@@ -12126,6 +12193,16 @@
             "type": "integer",
             "minimum": 2.0,
             "title": "H"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "type": {
             "type": "string",

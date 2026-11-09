@@ -13572,6 +13572,16 @@
             "minimum": 2.0,
             "title": "H"
           },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "type": {
             "type": "string",
             "const": "servicenow",

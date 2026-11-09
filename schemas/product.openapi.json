@@ -1822,6 +1822,159 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/dashboard-images": {
+      "post": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Upload Image",
+        "description": "Store a PNG, JPEG, GIF or WebP file of at most 5 MiB for image panels.",
+        "operationId": "upload_image_api_tenants__tenant_id__dashboard_images_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "image/png": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/gif": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/webp": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenants/{tenant_id}/dashboard-images/{image_id}": {
+      "get": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Read Image",
+        "description": "Serve an uploaded image to anyone who can read the tenant.",
+        "operationId": "read_image_api_tenants__tenant_id__dashboard_images__image_id__get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          },
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The cached image is current."
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/presets/{resource_id}/history": {
       "get": {
         "tags": [
@@ -9018,6 +9171,9 @@
                   "$ref": "#/components/schemas/HtmlPanel"
                 },
                 {
+                  "$ref": "#/components/schemas/ImagePanel"
+                },
+                {
                   "$ref": "#/components/schemas/TablePanel"
                 }
               ]
@@ -9056,6 +9212,9 @@
                   "$ref": "#/components/schemas/HtmlPanel"
                 },
                 {
+                  "$ref": "#/components/schemas/ImagePanel"
+                },
+                {
                   "$ref": "#/components/schemas/TablePanel"
                 }
               ]
@@ -9087,6 +9246,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ImagePanel"
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
@@ -9128,6 +9290,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ImagePanel"
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
@@ -9452,6 +9617,106 @@
         ],
         "title": "HtmlPanel",
         "description": "A panel showing HTML; it references no preset (REV-57).\n\nValidation bounds only the raw size. Callers sanitize with ``sanitize_panels``\nafter authorizing the request, so unauthenticated bodies are never parsed."
+      },
+      "ImagePanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "type": {
+            "type": "string",
+            "const": "image",
+            "title": "Type"
+          },
+          "image_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Id"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "fit": {
+            "type": "string",
+            "enum": [
+              "contain",
+              "cover"
+            ],
+            "title": "Fit",
+            "default": "contain"
+          },
+          "alt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type"
+        ],
+        "title": "ImagePanel",
+        "description": "A panel showing an uploaded image or an https image address (REV-62)."
       },
       "IncidentAssignment": {
         "properties": {

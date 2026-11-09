@@ -13615,12 +13615,7 @@
           },
           "color": {
             "type": "string",
-            "enum": [
-              "blue",
-              "green",
-              "amber",
-              "red"
-            ],
+            "pattern": "^(#[0-9A-Fa-f]{6}|((lightest|light|dark|darkest)-)?(red|orange|amber|green|teal|blue|purple|gray))$",
             "title": "Color"
           }
         },

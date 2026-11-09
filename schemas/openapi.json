@@ -2694,6 +2694,166 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/ticket-counts/status": {
+      "get": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Ticket Count Status",
+        "description": "Whether ServiceNow ticket panels can show counts in this deployment.",
+        "operationId": "ticket_count_status_api_tenants__tenant_id__ticket_counts_status_get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketCountStatusRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenants/{tenant_id}/ticket-counts": {
+      "post": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Ticket Counts",
+        "description": "Ticket counts for up to 24 panel queries; each query gets its own result.",
+        "operationId": "ticket_counts_api_tenants__tenant_id__ticket_counts_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketCountResultsRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/integrations/ticket-count": {
+      "get": {
+        "tags": [
+          "administration"
+        ],
+        "summary": "Ticket Count Integration",
+        "description": "The counting service's connection status, for super admins.",
+        "operationId": "ticket_count_integration_api_admin_integrations_ticket_count_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketCountIntegrationRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/integrations/ticket-count/test": {
+      "post": {
+        "tags": [
+          "administration"
+        ],
+        "summary": "Ticket Count Test",
+        "description": "Ask the counting service once, bypassing the cache; any valid JSON answer passes.",
+        "operationId": "ticket_count_test_api_admin_integrations_ticket_count_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCountTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketCountTestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/maintenance": {
       "post": {
         "tags": [
@@ -10692,6 +10852,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ServiceNowPanel"
                 }
               ]
             },
@@ -10733,6 +10896,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ServiceNowPanel"
                 }
               ]
             },
@@ -10769,6 +10935,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ServiceNowPanel"
                 }
               ]
             },
@@ -10813,6 +10982,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/TablePanel"
+                },
+                {
+                  "$ref": "#/components/schemas/ServiceNowPanel"
                 }
               ]
             },
@@ -13305,6 +13477,96 @@
         ],
         "title": "ScheduleEdit"
       },
+      "ServiceNowPanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "type": {
+            "type": "string",
+            "const": "servicenow",
+            "title": "Type"
+          },
+          "team": {
+            "type": "string",
+            "title": "Team"
+          },
+          "ticket_state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "in_progress",
+              "both"
+            ],
+            "title": "Ticket State",
+            "default": "open"
+          },
+          "detection": {
+            "type": "string",
+            "enum": [
+              "hamal",
+              "direct",
+              "all"
+            ],
+            "title": "Detection",
+            "default": "hamal"
+          },
+          "thresholds": {
+            "items": {
+              "$ref": "#/components/schemas/Threshold"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Thresholds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type",
+          "team"
+        ],
+        "title": "ServiceNowPanel",
+        "description": "A panel showing a team's ServiceNow ticket count (REV-65).\n\nThe API server asks the deployment's ticket counting service for the count of\n``team``'s tickets in ``ticket_state`` found by ``detection``. It references no\npreset and is never part of a count batch; ``thresholds`` color the count like\na count panel's."
+      },
       "SnapshotClose": {
         "properties": {
           "token": {
@@ -13626,6 +13888,342 @@
           "color"
         ],
         "title": "Threshold"
+      },
+      "TicketCountIntegration": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Host",
+            "description": "The service's scheme, host and port; never its path or query."
+          },
+          "last_success_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Success At"
+          },
+          "last_failure_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Failure At"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error",
+            "description": "The last failure's kind, such as timeout."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "configured",
+          "host",
+          "last_success_at",
+          "last_failure_at",
+          "last_error"
+        ],
+        "title": "TicketCountIntegration"
+      },
+      "TicketCountIntegrationRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TicketCountIntegration"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "TicketCountIntegrationRead"
+      },
+      "TicketCountQuery": {
+        "properties": {
+          "team": {
+            "type": "string",
+            "title": "Team"
+          },
+          "ticket_state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "in_progress",
+              "both"
+            ],
+            "title": "Ticket State",
+            "default": "open"
+          },
+          "detection": {
+            "type": "string",
+            "enum": [
+              "hamal",
+              "direct",
+              "all"
+            ],
+            "title": "Detection",
+            "default": "hamal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "team"
+        ],
+        "title": "TicketCountQuery"
+      },
+      "TicketCountRequest": {
+        "properties": {
+          "queries": {
+            "items": {
+              "$ref": "#/components/schemas/TicketCountQuery"
+            },
+            "type": "array",
+            "maxItems": 24,
+            "minItems": 1,
+            "title": "Queries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "queries"
+        ],
+        "title": "TicketCountRequest"
+      },
+      "TicketCountResult": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "count",
+              "not_found",
+              "no_count",
+              "unavailable",
+              "not_configured"
+            ],
+            "title": "Status",
+            "description": "count: the service gave a count; not_found: it doesn't know the team; no_count: it answered without a usable count; unavailable: it timed out, failed or gave no valid JSON; not_configured: no service is configured."
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count",
+            "description": "The ticket count as a decimal string when status is count; else null."
+          },
+          "checked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At",
+            "description": "When this answer was fetched (answers are cached for up to 30 s); null when not configured or when no call slot was free."
+          },
+          "last_count": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Count",
+            "description": "The last count for this query in the past hour, as a decimal string; null when none."
+          },
+          "last_counted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Counted At",
+            "description": "When last_count was fetched."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "count",
+          "checked_at",
+          "last_count",
+          "last_counted_at"
+        ],
+        "title": "TicketCountResult"
+      },
+      "TicketCountResults": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TicketCountResult"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "One result per query, in request order."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "TicketCountResults"
+      },
+      "TicketCountResultsRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TicketCountResults"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "TicketCountResultsRead"
+      },
+      "TicketCountStatus": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured",
+            "description": "Whether this deployment has a ticket counting service."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "configured"
+        ],
+        "title": "TicketCountStatus"
+      },
+      "TicketCountStatusRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TicketCountStatus"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "TicketCountStatusRead"
+      },
+      "TicketCountTest": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "elapsed_ms": {
+            "type": "string",
+            "title": "Elapsed Ms",
+            "description": "Milliseconds the test took, as a decimal string."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "message",
+          "elapsed_ms"
+        ],
+        "title": "TicketCountTest"
+      },
+      "TicketCountTestRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TicketCountTest"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "TicketCountTestRead"
+      },
+      "TicketCountTestRequest": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TicketCountTestRequest",
+        "description": "An empty JSON object; product POST bodies are always JSON."
       },
       "TimezoneEdit": {
         "properties": {

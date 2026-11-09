@@ -10533,6 +10533,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/TablePanel"
                 }
               ]
             },
@@ -10568,6 +10571,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/TablePanel"
                 }
               ]
             },
@@ -10598,6 +10604,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/TablePanel"
                 }
               ]
             },
@@ -10636,6 +10645,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/HtmlPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/TablePanel"
                 }
               ]
             },
@@ -11976,6 +11988,11 @@
             "type": "boolean",
             "title": "Group Empty",
             "default": false
+          },
+          "newest_first": {
+            "type": "boolean",
+            "title": "Newest First",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -13061,6 +13078,75 @@
           "direction"
         ],
         "title": "Sort"
+      },
+      "TablePanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "type": {
+            "type": "string",
+            "const": "table",
+            "title": "Type"
+          },
+          "preset_id": {
+            "type": "string",
+            "title": "Preset Id"
+          },
+          "rows": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Rows",
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type",
+          "preset_id"
+        ],
+        "title": "TablePanel",
+        "description": "A panel listing its preset's latest alerts, newest first (REV-63).\n\nIt references a preset like a count panel and shows ``rows`` alerts in the\npreset's saved columns; it has no thresholds and is never counted."
       },
       "TenantCreate": {
         "properties": {

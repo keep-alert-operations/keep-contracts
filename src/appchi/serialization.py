@@ -15,7 +15,7 @@ def wire(value):
                 str(item)
                 if isinstance(item, int)
                 and not isinstance(item, bool)
-                and key not in {"x", "y", "w", "h", "index", "limit", "page_size", "window_minutes"}
+                and key not in {"x", "y", "w", "h", "rows", "index", "limit", "page_size", "window_minutes"}
                 else wire(item)
             )
             for key, item in value.items()

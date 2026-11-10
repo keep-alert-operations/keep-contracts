@@ -1,5 +1,5 @@
 [project]
-name = "appchi-contracts"
+name = "keep-contracts"
 version = "0.1.0"
 description = "Native alert and Kafka contracts, HTTP schema artifacts and shared serialization."
 requires-python = ">=3.13,<3.14"
@@ -15,7 +15,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/appchi", "src/appchi_contracts"]
+packages = ["src/keep", "src/keep_contracts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -30,7 +30,7 @@ line-length = 100
 select = ["E4", "E7", "E9", "F"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"schemas" = "appchi_contracts/schemas"
+"schemas" = "keep_contracts/schemas"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -38,8 +38,8 @@ allow-direct-references = true
 [tool.poetry]
 requires-poetry = "==2.3.1"
 packages = [
-  { include = "appchi", from = "src" },
-  { include = "appchi_contracts", from = "src" },
+  { include = "keep", from = "src" },
+  { include = "keep_contracts", from = "src" },
 ]
 
 # Resolve-only pins preserve the coordinated baseline without adding runtime requirements.

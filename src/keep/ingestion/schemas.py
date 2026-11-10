@@ -1,6 +1,6 @@
 """Schemas for the exact native field inventory; parsing preserves original object bytes."""
 
-from appchi.ingestion.native import V1, V2, OPTIONAL, LIMITS
+from keep.ingestion.native import V1, V2, OPTIONAL, LIMITS
 
 
 def admission_responses():

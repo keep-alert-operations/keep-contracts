@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Appchi",
+    "title": "Keep",
     "version": "0.1.0"
   },
   "paths": {
@@ -2877,7 +2877,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/appchi__maintenance__models__Create"
+                "$ref": "#/components/schemas/keep__maintenance__models__Create"
               }
             }
           }
@@ -3375,7 +3375,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/appchi__maintenance__models__Definition"
+                "$ref": "#/components/schemas/keep__maintenance__models__Definition"
               }
             }
           }
@@ -3872,7 +3872,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/appchi__correlation__models__Create"
+                "$ref": "#/components/schemas/keep__correlation__models__Create"
               }
             }
           }
@@ -4372,7 +4372,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/appchi__correlation__models__Definition"
+                "$ref": "#/components/schemas/keep__correlation__models__Definition"
               }
             }
           }
@@ -14488,7 +14488,7 @@
         ],
         "title": "ValidationResponse"
       },
-      "appchi__correlation__models__Create": {
+      "keep__correlation__models__Create": {
         "properties": {
           "name": {
             "type": "string",
@@ -14549,7 +14549,7 @@
         ],
         "title": "Create"
       },
-      "appchi__correlation__models__Definition": {
+      "keep__correlation__models__Definition": {
         "properties": {
           "name": {
             "type": "string",
@@ -14605,7 +14605,7 @@
         ],
         "title": "Definition"
       },
-      "appchi__maintenance__models__Create": {
+      "keep__maintenance__models__Create": {
         "properties": {
           "name": {
             "type": "string",
@@ -14685,7 +14685,7 @@
         ],
         "title": "Create"
       },
-      "appchi__maintenance__models__Definition": {
+      "keep__maintenance__models__Definition": {
         "properties": {
           "name": {
             "type": "string",

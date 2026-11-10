@@ -1,4 +1,4 @@
-from appchi.ingestion.native import canonical
+from keep.ingestion.native import canonical
 
 
 def received_key(tenant, application, key):

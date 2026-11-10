@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from appchi.models import AlertCommand, BulkCommand, DismissalValue
+from keep.models import AlertCommand, BulkCommand, DismissalValue
 
 
 def command(kind, value):

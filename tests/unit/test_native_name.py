@@ -2,8 +2,8 @@ import hashlib
 
 import pytest
 
-from appchi.ingestion.native import identity, validate_native
-from appchi.shared.errors import AppError
+from keep.ingestion.native import identity, validate_native
+from keep.shared.errors import AppError
 
 OPERATOR = "00000000-0000-4000-8000-000000000001"
 

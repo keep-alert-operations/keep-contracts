@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from appchi.operators.grafana import OperatorRouting, map_webhook, rule_url
+from keep.operators.grafana import OperatorRouting, map_webhook, rule_url
 
 RULE = "https://grafana.example.org/alerting/grafana/cpu-rule/view?orgId=1"
 
@@ -12,7 +12,7 @@ def member(**extra):
         "status": "firing",
         "startsAt": "2026-09-22T15:00:01Z",
         "labels": {
-            "Appchi - Payments": "true",
+            "Keep - Payments": "true",
             "alertname": "High CPU",
             "application": "pay",
             "component": "cpu",

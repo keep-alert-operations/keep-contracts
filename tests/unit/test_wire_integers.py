@@ -1,4 +1,4 @@
-from appchi.serialization import wire
+from keep.serialization import wire
 
 
 def test_layout_and_table_rows_stay_numbers_other_integers_become_strings():

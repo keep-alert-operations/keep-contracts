@@ -102,7 +102,7 @@
     "adapter_version": {
       "anyOf": [
         {
-          "const": "appchi-grafana-v1",
+          "const": "keep-grafana-v1",
           "type": "string"
         },
         {

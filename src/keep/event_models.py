@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import AfterValidator, Field, model_validator
 
-from appchi.models import StrictModel
+from keep.models import StrictModel
 
 
 def bigint(value):
@@ -128,7 +128,7 @@ class KafkaReceivedEnvelope(StrictModel):
     time_defaulted: bool
     key_field: Annotated[str, Field(min_length=1, max_length=2048)]
     identity_material: str
-    adapter_version: Literal["appchi-grafana-v1"] | None
+    adapter_version: Literal["keep-grafana-v1"] | None
 
     @model_validator(mode="after")
     def routing_scope(self):

@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from appchi.operators.grafana import OperatorRouting, bearer_credential, map_webhook
-from appchi.shared.errors import AppError
+from keep.operators.grafana import OperatorRouting, bearer_credential, map_webhook
+from keep.shared.errors import AppError
 
 
 def member():
@@ -11,7 +11,7 @@ def member():
         "status": "firing",
         "startsAt": "2026-09-22T15:00:01.123456789+03:00",
         "labels": {
-            "Appchi - Payments": "true",
+            "Keep - Payments": "true",
             "alertname": "High CPU",
             "application": "pay",
             "component": "cpu",
@@ -83,10 +83,10 @@ def test_invalid_members_preserve_indexed_partial_results(update):
 
 def test_routing_label_exact_true_and_rename_requires_both_name_claims():
     alert = member()
-    alert["labels"]["Appchi - Payments"] = "True"
+    alert["labels"]["Keep - Payments"] = "True"
     assert map_webhook(body(alert), OperatorRouting("Payments"))[0].error
-    del alert["labels"]["Appchi - Payments"]
-    alert["labels"]["Appchi - PAYMENTS"] = "true"
+    del alert["labels"]["Keep - Payments"]
+    alert["labels"]["Keep - PAYMENTS"] = "true"
     assert map_webhook(body(alert), OperatorRouting("Payments"))[0].error
     routing = OperatorRouting("Payments", "PAYMENTS", True, True)
     assert map_webhook(body(alert), routing)[0].payload

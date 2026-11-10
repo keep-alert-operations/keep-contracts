@@ -5,7 +5,7 @@ import re
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
-from appchi.shared.errors import AppError
+from keep.shared.errors import AppError
 
 RETRY_ID = re.compile(r"[A-Za-z0-9._:-]{1,128}\Z")
 V1 = {"application", "object", "node_name", "message", "operator", "time_created", "severity"}

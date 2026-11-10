@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import re
 
-from appchi.ingestion.native import (
+from keep.ingestion.native import (
     LIMITS,
     canonical,
     format_native_time,
@@ -11,9 +11,9 @@ from appchi.ingestion.native import (
     parse_json,
     validate_native,
 )
-from appchi.shared.errors import AppError
+from keep.shared.errors import AppError
 
-ADAPTER_VERSION = "appchi-grafana-v1"
+ADAPTER_VERSION = "keep-grafana-v1"
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ class OperatorRouting:
                     503,
                 )
             names.append(self.pending_name)
-        return tuple("Appchi - " + name for name in names)
+        return tuple("Keep - " + name for name in names)
 
 
 @dataclass(frozen=True)

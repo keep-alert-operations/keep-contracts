@@ -2919,6 +2919,49 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/servicenow/status": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Servicenow Status",
+        "description": "Whether ServiceNow tickets are on, and the ServiceNow address links must use.",
+        "operationId": "servicenow_status_api_tenants__tenant_id__servicenow_status_get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceNowStatusRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/maintenance": {
       "post": {
         "tags": [
@@ -6064,6 +6107,66 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/IncidentAssignment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenants/{tenant_id}/incidents/{incident_id}/ticket": {
+      "post": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Ticket",
+        "description": "Link, change or unlink the incident's ServiceNow ticket (REV-70).",
+        "operationId": "ticket_api_tenants__tenant_id__incidents__incident_id__ticket_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          },
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Incident Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IncidentTicket"
               }
             }
           }
@@ -10481,6 +10584,66 @@
             ],
             "title": "Unavailable",
             "description": "Current linked references whose alert is no longer retained."
+          },
+          "ticket_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Url",
+            "description": "Link to the incident's ServiceNow ticket (REV-70); null when none is linked."
+          },
+          "ticket_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Number",
+            "description": "The linked ticket's number, upper case; null when not given."
+          },
+          "ticket_linked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Linked At",
+            "description": "When the current ticket link was saved; null without a ticket."
+          },
+          "ticket_linked_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Linked By",
+            "description": "Principal who saved the current ticket link."
+          },
+          "ticket_linked_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Linked By Display Name",
+            "description": "Stored directory name of ticket_linked_by."
           }
         },
         "additionalProperties": true,
@@ -10719,6 +10882,48 @@
           "status"
         ],
         "title": "IncidentStatus"
+      },
+      "IncidentTicket": {
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "title": "Command Id"
+          },
+          "expected_revision": {
+            "type": "string",
+            "title": "Expected Revision"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command_id",
+          "expected_revision"
+        ],
+        "title": "IncidentTicket",
+        "description": "Link, change or unlink the incident's ServiceNow ticket (REV-70).\n\n``url`` null unlinks; a number needs a link. Whether the link points into the\nconfigured ServiceNow is checked by the command against ``KEEP_SERVICENOW_URL``."
       },
       "Limits": {
         "properties": {
@@ -12521,6 +12726,53 @@
         ],
         "title": "ServiceNowPanel",
         "description": "A panel showing a team's ServiceNow ticket count (REV-65).\n\nThe API server asks the deployment's ticket counting service for the count of\n``team``'s tickets in ``ticket_state`` found by ``detection``. It references no\npreset and is never part of a count batch; ``thresholds`` color the count like\na count panel's."
+      },
+      "ServiceNowStatus": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured",
+            "description": "Whether incidents can be linked to tickets in this deployment's ServiceNow."
+          },
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url",
+            "description": "The configured ServiceNow address without a trailing slash; null when off."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "configured",
+          "base_url"
+        ],
+        "title": "ServiceNowStatus"
+      },
+      "ServiceNowStatusRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ServiceNowStatus"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "ServiceNowStatusRead"
       },
       "SnapshotClose": {
         "properties": {

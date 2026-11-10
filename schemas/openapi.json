@@ -10923,6 +10923,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/GrafanaPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/IncidentCountPanel"
                 }
               ]
             },
@@ -10970,6 +10973,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/GrafanaPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/IncidentCountPanel"
                 }
               ]
             },
@@ -11012,6 +11018,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/GrafanaPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/IncidentCountPanel"
                 }
               ]
             },
@@ -11062,6 +11071,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/GrafanaPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/IncidentCountPanel"
                 }
               ]
             },
@@ -11776,6 +11788,96 @@
           "description"
         ],
         "title": "IncidentContent"
+      },
+      "IncidentCountPanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "const": "incident_count",
+            "title": "Type"
+          },
+          "preset_id": {
+            "type": "string",
+            "title": "Preset Id"
+          },
+          "incident_status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "investigating",
+              "both"
+            ],
+            "title": "Incident Status",
+            "default": "both"
+          },
+          "thresholds": {
+            "items": {
+              "$ref": "#/components/schemas/Threshold"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Thresholds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type",
+          "preset_id"
+        ],
+        "title": "IncidentCountPanel",
+        "description": "A panel counting the incidents its preset's alerts are in (REV-69).\n\nIt references a preset like a count panel and counts the distinct incidents that\nactively own at least one alert the preset counts and whose status is\n``incident_status`` (``open``, shown as Firing, ``investigating``, or ``both``);\nresolved incidents never count. ``thresholds`` color the count like a count\npanel's."
       },
       "IncidentCreate": {
         "properties": {
@@ -12965,6 +13067,22 @@
             "type": "boolean",
             "title": "Include Suppressed",
             "default": false
+          },
+          "incident_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "investigating",
+                  "both"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Status"
           }
         },
         "additionalProperties": false,

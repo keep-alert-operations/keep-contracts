@@ -13,8 +13,6 @@ jobs:
       - name: Install Poetry
         run: python -m pip install poetry==2.3.1
       - name: Locked install and checks
-        env:
-          KEEP_TOKEN: ${{ secrets.APPCHI_REPOSITORIES_TOKEN }}
         run: |
           poetry check --lock
           poetry sync --all-extras

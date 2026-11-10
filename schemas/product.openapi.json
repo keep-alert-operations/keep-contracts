@@ -2854,6 +2854,71 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/grafana-panels/status": {
+      "get": {
+        "tags": [
+          "configuration"
+        ],
+        "summary": "Grafana Panel Status",
+        "description": "Whether Grafana panels are on and which Grafana addresses they may show.",
+        "operationId": "grafana_panel_status_api_tenants__tenant_id__grafana_panels_status_get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrafanaPanelStatusRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/integrations/grafana-panels": {
+      "get": {
+        "tags": [
+          "administration"
+        ],
+        "summary": "Grafana Panel Integration",
+        "description": "The allowed Grafana list and any ignored entries, for super admins.",
+        "operationId": "grafana_panel_integration_api_admin_integrations_grafana_panels_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrafanaPanelIntegrationRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/maintenance": {
       "post": {
         "tags": [
@@ -9338,6 +9403,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/ServiceNowPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/GrafanaPanel"
                 }
               ]
             },
@@ -9382,6 +9450,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/ServiceNowPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/GrafanaPanel"
                 }
               ]
             },
@@ -9421,6 +9492,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/ServiceNowPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/GrafanaPanel"
                 }
               ]
             },
@@ -9468,6 +9542,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/ServiceNowPanel"
+                },
+                {
+                  "$ref": "#/components/schemas/GrafanaPanel"
                 }
               ]
             },
@@ -9621,6 +9698,216 @@
           "insert_text"
         ],
         "title": "Function"
+      },
+      "GrafanaIgnoredEntry": {
+        "properties": {
+          "entry": {
+            "type": "string",
+            "title": "Entry",
+            "description": "A configured entry that was not usable."
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Why the entry was ignored."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entry",
+          "reason"
+        ],
+        "title": "GrafanaIgnoredEntry"
+      },
+      "GrafanaOrigin": {
+        "properties": {
+          "origin": {
+            "type": "string",
+            "title": "Origin",
+            "description": "An allowed Grafana's scheme, host and non-default port, as a browser reports URL.origin."
+          },
+          "path_prefix": {
+            "type": "string",
+            "title": "Path Prefix",
+            "description": "The Grafana's base path without a trailing slash, or empty when it is served at the root; panel addresses must start with <path_prefix>/d-solo/."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "origin",
+          "path_prefix"
+        ],
+        "title": "GrafanaOrigin"
+      },
+      "GrafanaPanel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "w": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "W"
+          },
+          "h": {
+            "type": "integer",
+            "minimum": 2.0,
+            "title": "H"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PanelLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "const": "grafana",
+            "title": "Type"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "type",
+          "url"
+        ],
+        "title": "GrafanaPanel",
+        "description": "A panel framing one live Grafana panel in the browser (REV-68).\n\nThe model checks only the address's form. Whether this deployment allows its\nGrafana is checked by ``keep.configuration.grafana.grafana_url_problem`` when the\naddress is new or changed, and again by the browser before every render. It\nreferences no preset and is never part of a count batch."
+      },
+      "GrafanaPanelIntegration": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Whether at least one Grafana is allowed."
+          },
+          "origins": {
+            "items": {
+              "$ref": "#/components/schemas/GrafanaOrigin"
+            },
+            "type": "array",
+            "title": "Origins",
+            "description": "The allowed Grafana instances."
+          },
+          "ignored": {
+            "items": {
+              "$ref": "#/components/schemas/GrafanaIgnoredEntry"
+            },
+            "type": "array",
+            "title": "Ignored",
+            "description": "Configured entries that were ignored at start-up, with the reason."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enabled",
+          "origins",
+          "ignored"
+        ],
+        "title": "GrafanaPanelIntegration"
+      },
+      "GrafanaPanelIntegrationRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GrafanaPanelIntegration"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "GrafanaPanelIntegrationRead"
+      },
+      "GrafanaPanelStatus": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Whether at least one Grafana is allowed."
+          },
+          "origins": {
+            "items": {
+              "$ref": "#/components/schemas/GrafanaOrigin"
+            },
+            "type": "array",
+            "title": "Origins",
+            "description": "The allowed Grafana instances."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enabled",
+          "origins"
+        ],
+        "title": "GrafanaPanelStatus"
+      },
+      "GrafanaPanelStatusRead": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GrafanaPanelStatus"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "GrafanaPanelStatusRead"
       },
       "Grant": {
         "properties": {

@@ -44,117 +44,51 @@
       }
     },
     "/auth/login": {
-      "get": {
+      "post": {
         "tags": [
           "identity"
         ],
         "summary": "Login",
-        "operationId": "login_auth_login_get",
-        "parameters": [
-          {
-            "name": "return_to",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/",
-              "title": "Return To"
-            }
-          },
-          {
-            "name": "fresh",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false,
-              "title": "Fresh"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/callback": {
-      "get": {
-        "tags": [
-          "identity"
-        ],
-        "summary": "Callback",
-        "operationId": "callback_auth_callback_get",
-        "parameters": [
-          {
-            "name": "state",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": "State"
-            }
-          },
-          {
-            "name": "code",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": "Code"
-            }
-          },
-          {
-            "name": "error",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
+        "description": "Sign in with the company username and AD password (identity configuration 2-3).",
+        "operationId": "login_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "return_to": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2048
+                  }
                 },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Error"
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
               }
             }
           }
@@ -167,26 +101,8 @@
           "identity"
         ],
         "summary": "Current Session",
+        "description": "The signed-in user, effective tenant access and the session's absolute deadline.",
         "operationId": "current_session_auth_session_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/activity": {
-      "post": {
-        "tags": [
-          "identity"
-        ],
-        "summary": "Activity",
-        "operationId": "activity_auth_activity_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -205,26 +121,8 @@
           "identity"
         ],
         "summary": "Logout",
+        "description": "Revoke the local session before clearing its cookie (identity configuration 10).",
         "operationId": "logout_auth_logout_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/backchannel-logout": {
-      "post": {
-        "tags": [
-          "identity"
-        ],
-        "summary": "Backchannel Logout",
-        "operationId": "backchannel_logout_auth_backchannel_logout_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -8120,6 +8018,118 @@
         }
       }
     },
+    "/api/tenants/{tenant_id}/permission-principals/resolve": {
+      "post": {
+        "tags": [
+          "directory"
+        ],
+        "summary": "Resolve",
+        "description": "Save a picked principal: 200 saved, 202 pending, 422 not in ADAPI, 503 failed.\n\nOrder: a pending row (failed -> 503 unless ``retry``; leased -> 202; otherwise\nhand over -> 202), then a stored usable principal (200, no ADAPI read), then\nan inline save (200, or 202 when it does not fit the request).",
+        "operationId": "resolve_api_tenants__tenant_id__permission_principals_resolve_post",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "summary": "Resolve Status",
+        "description": "Poll a save; reads PostgreSQL only, never ADAPI.\n\n200 saved and usable; 202 leased or queued (a pending row without a live lease\nis handed over again); 503 failed with its ``last_failure``; 404 no save.",
+        "operationId": "resolve_status_api_tenants__tenant_id__permission_principals_resolve_get",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "user",
+                "team"
+              ],
+              "type": "string",
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Username"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/tenants/{tenant_id}/kafka": {
       "get": {
         "tags": [
@@ -14021,6 +14031,34 @@
           "first_response"
         ],
         "title": "ReportSummary"
+      },
+      "ResolveBody": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "user",
+              "team"
+            ],
+            "title": "Kind"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "retry": {
+            "type": "boolean",
+            "title": "Retry",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "username"
+        ],
+        "title": "ResolveBody"
       },
       "SavedTest": {
         "properties": {

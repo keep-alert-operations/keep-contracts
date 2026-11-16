@@ -998,6 +998,46 @@
         }
       }
     },
+    "/api/rum-events": {
+      "post": {
+        "tags": [
+          "rum"
+        ],
+        "summary": "Rum Events",
+        "description": "Accept one batch of browser monitoring events.",
+        "operationId": "rum_events_api_rum_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RumBatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenants/{tenant_id}/presets": {
       "post": {
         "tags": [
@@ -14059,6 +14099,261 @@
           "username"
         ],
         "title": "ResolveBody"
+      },
+      "RumBatch": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RumEvent"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "title": "RumBatch"
+      },
+      "RumEvent": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "web_vital",
+              "page_view",
+              "api",
+              "api_error",
+              "live",
+              "live_disconnect",
+              "js_error",
+              "tab",
+              "dropped"
+            ],
+            "title": "Kind"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "view": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View"
+          },
+          "route": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "PATCH",
+                  "DELETE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "ge": 0,
+                "le": 86400
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "buckets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer",
+                  "maximum": 100000.0,
+                  "minimum": 0.0
+                },
+                "type": "array",
+                "maxItems": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buckets"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 599.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "error_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Name"
+          },
+          "stack": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stack"
+          },
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Id"
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "RumEvent",
+        "description": "One real-user-monitoring event from the browser (observability 9).\n\nThe shape is checked here; which fields each kind needs, and that every value\nused as a metric label belongs to its closed set, is checked by the Product API.\nEvents carry route templates and resource IDs, never addresses, query text or\ncontent."
       },
       "SavedTest": {
         "properties": {

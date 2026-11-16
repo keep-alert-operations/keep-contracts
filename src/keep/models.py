@@ -119,3 +119,50 @@ class BulkCommand(StrictModel):
         if not 1 <= len(unique) <= 100:
             raise ValueError("Select 1–100 distinct alerts")
         return self
+
+
+class RumEvent(StrictModel):
+    """One real-user-monitoring event from the browser (observability 9).
+
+    The shape is checked here; which fields each kind needs, and that every value
+    used as a metric label belongs to its closed set, is checked by the Product API.
+    Events carry route templates and resource IDs, never addresses, query text or
+    content.
+    """
+
+    kind: Literal[
+        "web_vital",
+        "page_view",
+        "api",
+        "api_error",
+        "live",
+        "live_disconnect",
+        "js_error",
+        "tab",
+        "dropped",
+    ]
+    name: Annotated[str, Field(max_length=32)] | None = None
+    view: Annotated[str, Field(max_length=32)] | None = None
+    route: Annotated[str, Field(max_length=200)] | None = None
+    method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"] | None = None
+    outcome: Annotated[str, Field(max_length=32)] | None = None
+    state: Annotated[str, Field(max_length=32)] | None = None
+    reason: Annotated[str, Field(max_length=32)] | None = None
+    value: Annotated[int | float, Field(ge=0, le=86400)] | None = None
+    count: Annotated[int, Field(ge=1, le=100000)] | None = None
+    buckets: Annotated[list[Annotated[int, Field(ge=0, le=100000)]], Field(max_length=8)] | None = None
+    status: Annotated[int, Field(ge=0, le=599)] | None = None
+    request_id: str | None = None
+    error_name: Annotated[str, Field(max_length=64)] | None = None
+    stack: Annotated[str, Field(max_length=4000)] | None = None
+    alert_id: str | None = None
+    incident_id: str | None = None
+
+    @field_validator("request_id", "alert_id", "incident_id")
+    @classmethod
+    def identifier(cls, value):
+        return value if value is None else uuid_string(value)
+
+
+class RumBatch(StrictModel):
+    events: Annotated[list[RumEvent], Field(min_length=1, max_length=100)]

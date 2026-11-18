@@ -128,7 +128,8 @@ class KafkaReceivedEnvelope(StrictModel):
     time_defaulted: bool
     key_field: Annotated[str, Field(min_length=1, max_length=2048)]
     identity_material: str
-    adapter_version: Literal["keep-grafana-v1"] | None
+    # keep-grafana-v1 maps Grafana to v2; keep-grafana-native-v1 maps it to v1 (REV-77).
+    adapter_version: Literal["keep-grafana-v1", "keep-grafana-native-v1"] | None
 
     @model_validator(mode="after")
     def routing_scope(self):
@@ -137,9 +138,14 @@ class KafkaReceivedEnvelope(StrictModel):
         ):
             raise ValueError("V2 requires trusted credential routing")
         if self.native_version == "v1" and any(
-            (self.operator_id, self.credential_id, self.policy_generation, self.adapter_version)
+            (self.operator_id, self.credential_id, self.policy_generation)
         ):
             raise ValueError("V1 cannot carry managed operator context")
+        if self.adapter_version not in (
+            None,
+            "keep-grafana-v1" if self.native_version == "v2" else "keep-grafana-native-v1",
+        ):
+            raise ValueError("The Grafana adapter version does not match the native version")
         return self
 
 

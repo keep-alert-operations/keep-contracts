@@ -14,6 +14,15 @@ from keep.ingestion.native import (
 from keep.shared.errors import AppError
 
 ADAPTER_VERSION = "keep-grafana-v1"
+# REV-77: Grafana's standard webhook mapped to native v1 for Global.
+NATIVE_V1_ADAPTER_VERSION = "keep-grafana-native-v1"
+V1_LABELS = ("application", "object", "node_name", "operator", "severity")
+# Where each mapped v1 field comes from, so errors name the Grafana source.
+V1_SOURCES = {
+    **{name: "labels." + name for name in (*V1_LABELS, "key_field")},
+    "message": "annotations.message",
+    "time_created": "startsAt",
+}
 
 
 @dataclass(frozen=True)
@@ -65,12 +74,8 @@ def _starts_at(value) -> str:
         ) from None
 
 
-def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
-    """Map only; caller must authenticate and atomically admit the valid subset.
-
-    Retain original_bytes and adapter_version as source provenance. Invalid
-    members produce indexed diagnostics without inventing admissible payloads.
-    """
+def _envelope(raw: bytes) -> tuple[list, dict]:
+    """Validate the standard webhook envelope; return its alerts and their bytes."""
     if len(raw) > 4 * 1024 * 1024:
         raise AppError("body_too_large", "Grafana bodies are limited to 4 MiB", 413)
     envelope = parse_json(raw)
@@ -85,39 +90,60 @@ def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
         raise AppError(
             "grafana_truncated", "A truncated or invalid Grafana notification cannot be admitted"
         )
+    return envelope["alerts"], object_slices(raw)
+
+
+def _member_maps(alert, original: bytes) -> tuple[dict, dict]:
+    """Check one member's shape; return its labels and annotations."""
+    if not isinstance(alert, dict):
+        raise AppError("invalid_member", "Each Grafana alert must be an object")
+    if len(original) > 65536:
+        raise AppError("item_too_large", "Original Grafana members are limited to 64 KiB", 413)
+    labels, annotations = alert.get("labels"), alert.get("annotations")
+    if not isinstance(labels, dict) or not isinstance(annotations, dict):
+        raise AppError("invalid_member", "Grafana labels and annotations must be objects")
+    if any(not isinstance(value, str) for value in (*labels.values(), *annotations.values())):
+        raise AppError("invalid_member", "Grafana labels and annotations must contain strings")
+    return labels, annotations
+
+
+def _status(alert: dict) -> str:
+    if not isinstance(alert.get("status"), str) or alert["status"] not in {
+        "firing",
+        "resolved",
+    }:
+        raise AppError("invalid_status", "Grafana per-alert status must be firing or resolved")
+    return alert["status"]
+
+
+def _failed(index: int, error: AppError) -> MappedMember:
+    return MappedMember(
+        index,
+        None,
+        b"",
+        {"code": error.code, "message": error.message, "fields": error.fields},
+    )
+
+
+def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
+    """Map only; caller must authenticate and atomically admit the valid subset.
+
+    Retain original_bytes and adapter_version as source provenance. Invalid
+    members produce indexed diagnostics without inventing admissible payloads.
+    """
+    alerts, originals = _envelope(raw)
     expected_labels = routing.labels()
-    originals = object_slices(raw)
     mapped = []
-    for index, alert in enumerate(envelope["alerts"]):
+    for index, alert in enumerate(alerts):
         original = originals.get(("alerts", index), b"")
         try:
-            if not isinstance(alert, dict):
-                raise AppError("invalid_member", "Each Grafana alert must be an object")
-            if len(original) > 65536:
-                raise AppError(
-                    "item_too_large", "Original Grafana members are limited to 64 KiB", 413
-                )
-            labels, annotations = alert.get("labels"), alert.get("annotations")
-            if not isinstance(labels, dict) or not isinstance(annotations, dict):
-                raise AppError("invalid_member", "Grafana labels and annotations must be objects")
-            if any(
-                not isinstance(value, str) for value in (*labels.values(), *annotations.values())
-            ):
-                raise AppError(
-                    "invalid_member", "Grafana labels and annotations must contain strings"
-                )
+            labels, annotations = _member_maps(alert, original)
             if not any(labels.get(label) == "true" for label in expected_labels):
                 raise AppError(
                     "operator_label_mismatch",
                     "Required authenticated-operator routing label is missing",
                 )
-            if not isinstance(alert.get("status"), str) or alert["status"] not in {
-                "firing",
-                "resolved",
-            }:
-                raise AppError(
-                    "invalid_status", "Grafana per-alert status must be firing or resolved"
-                )
+            _status(alert)
             payload = {
                 name: labels[name]
                 for name in ("application", "component", "severity", "site")
@@ -145,18 +171,65 @@ def map_webhook(raw: bytes, routing: OperatorRouting) -> list[MappedMember]:
             payload = validate_native(payload, "v2", canonical(payload))
             mapped.append(MappedMember(index, payload, original))
         except AppError as error:
-            mapped.append(
-                MappedMember(
-                    index,
-                    None,
-                    b"",
-                    {
-                        "code": error.code,
-                        "message": error.message,
-                        "fields": error.fields,
-                    },
+            mapped.append(_failed(index, error))
+    return mapped
+
+
+def map_webhook_v1(raw: bytes) -> list[MappedMember]:
+    """Map Grafana's standard webhook to native v1 members for Global (REV-77).
+
+    v1 is unauthenticated, so there is no operator routing label. Labels supply
+    application, object, node_name, operator, severity and an optional key_field;
+    the message annotation supplies message and startsAt supplies time_created. A
+    resolved member becomes v1 severity clear, so the alert resolves and keeps its
+    last known severity. Errors name the Grafana label or annotation at fault.
+    """
+    alerts, originals = _envelope(raw)
+    mapped = []
+    for index, alert in enumerate(alerts):
+        original = originals.get(("alerts", index), b"")
+        try:
+            labels, annotations = _member_maps(alert, original)
+            status = _status(alert)
+            missing = [name for name in V1_LABELS if name not in labels]
+            if missing or "message" not in annotations:
+                raise AppError(
+                    "invalid_fields",
+                    "Required Grafana labels or annotations are missing",
+                    fields=[{"path": V1_SOURCES[name]} for name in missing]
+                    + ([] if "message" in annotations else [{"path": "annotations.message"}]),
                 )
+            payload = {name: labels[name] for name in V1_LABELS}
+            if "key_field" in labels:
+                payload["key_field"] = labels["key_field"]
+            payload["message"] = annotations["message"]
+            if payload["severity"] not in {"error", "major", "warning", "clear"}:
+                raise AppError(
+                    "invalid_enum",
+                    "Grafana severity must be error, major, warning or clear",
+                    fields=[{"path": "labels.severity"}],
+                )
+            if status == "resolved":
+                payload["severity"] = "clear"
+            payload["time_created"] = _starts_at(alert.get("startsAt"))
+            try:
+                payload = validate_native(payload, "v1", canonical(payload))
+            except AppError as error:
+                raise AppError(
+                    error.code,
+                    error.message,
+                    error.status,
+                    fields=[
+                        {**field, "path": V1_SOURCES.get(field.get("path"), field.get("path"))}
+                        for field in error.fields or []
+                    ]
+                    or None,
+                ) from None
+            mapped.append(
+                MappedMember(index, payload, original, adapter_version=NATIVE_V1_ADAPTER_VERSION)
             )
+        except AppError as error:
+            mapped.append(_failed(index, error))
     return mapped
 
 

@@ -40,7 +40,7 @@ def body(*alerts):
 
 
 def test_firing_member_maps_to_native_v1():
-    """Requirements: REV-77; operator operations 18a; alert operations 1."""
+    """Requirements: REV-77; operator operations 30; alert operations 1."""
     mapped = map_webhook_v1(body(member()))[0]
     assert mapped.error is None
     assert mapped.adapter_version == NATIVE_V1_ADAPTER_VERSION
@@ -57,7 +57,7 @@ def test_firing_member_maps_to_native_v1():
 
 
 def test_resolved_member_becomes_clear_and_key_field_is_kept():
-    """Requirements: REV-77; operator operations 18a; alert operations 4 and 6."""
+    """Requirements: REV-77; operator operations 30; alert operations 4 and 6."""
     labels = dict(member()["labels"], key_field="billing-disk")
     mapped = map_webhook_v1(body(member(status="resolved", labels=labels)))[0]
     assert mapped.error is None
@@ -88,7 +88,7 @@ def test_resolved_member_becomes_clear_and_key_field_is_kept():
     ],
 )
 def test_invalid_members_name_the_grafana_source(update, code, paths):
-    """Requirements: REV-77; operator operations 18a; alert operations 1 and 11."""
+    """Requirements: REV-77; operator operations 30; alert operations 1 and 11."""
     mapped = map_webhook_v1(body(member(), member(**update)))
     assert mapped[0].error is None
     assert mapped[1].payload is None
